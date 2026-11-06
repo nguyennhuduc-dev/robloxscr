@@ -232,43 +232,49 @@ table.insert(connections, Lighting.DescendantAdded:Connect(function(obj)
 end))
 
 
--- Auto Click activates an equipped Roblox Tool directly.
--- It does not send mouse/touch input, move the pointer, or click UI controls.
--- It only activates while a Tool is parented to the local character.
+-- Auto Click uses executor-provided mouse input APIs.
+-- No weapon detection: sends a left-click at the executor's current click position.
+-- Availability and behavior depend on the executor/platform; mobile support is not guaranteed.
 local function stopAutoClick()
     autoClickEnabled = false
     autoClickGeneration += 1
 end
 
-local function getEquippedWeapon()
-    local character = Player.Character
-    if not character then return nil end
-
-    for _, child in ipairs(character:GetChildren()) do
-        if child:IsA("Tool") then
-            return child
-        end
+local function sendM1Click()
+    if type(mouse1click) == "function" then
+        return pcall(mouse1click)
     end
 
-    return nil
+    if type(mouse1press) == "function" and type(mouse1release) == "function" then
+        local pressed, pressError = pcall(mouse1press)
+        if not pressed then return false, pressError end
+        task.wait(0.03)
+        return pcall(mouse1release)
+    end
+
+    return false, "Executor does not expose mouse1click or mouse1press/mouse1release"
 end
 
 local function startAutoClick()
     stopAutoClick()
+
+    if type(mouse1click) ~= "function"
+        and not (type(mouse1press) == "function" and type(mouse1release) == "function") then
+        return false, "This executor does not provide a supported M1 input API."
+    end
+
     autoClickEnabled = true
     autoClickGeneration += 1
     local thisGeneration = autoClickGeneration
 
     task.spawn(function()
         while autoClickEnabled and autoClickGeneration == thisGeneration do
-            local weapon = getEquippedWeapon()
-
-            if weapon and weapon.Parent == Player.Character then
-                pcall(function()
-                    weapon:Activate()
-                end)
+            local ok, err = sendM1Click()
+            if not ok then
+                stopAutoClick()
+                warn("[Auto Click] Stopped: " .. tostring(err))
+                break
             end
-
             task.wait(math.clamp(autoClickInterval, 0.05, 5))
         end
     end)
@@ -512,7 +518,7 @@ local intervalLabel = Instance.new("TextLabel")
 intervalLabel.Size = UDim2.new(1, -24, 0, 20)
 intervalLabel.Position = UDim2.fromOffset(12, 258)
 intervalLabel.BackgroundTransparency = 1
-intervalLabel.Text = "Click interval (seconds) — default 0.10"
+intervalLabel.Text = "M1 click interval (seconds) — default 0.10"
 intervalLabel.TextColor3 = MUTED
 intervalLabel.TextSize = 11
 intervalLabel.Font = Enum.Font.Gotham
@@ -586,10 +592,9 @@ local function refreshPage()
         autoNav.BackgroundColor3 = ROW
     else
         pageTitle.Text = "Auto Click"
-        pageDescription.Text = "Luau Tool activation only. No simulated mouse clicks or screen touches. Some custom combat systems are unsupported."
+        pageDescription.Text = "Repeated M1 clicks through executor input. No weapon detection; mobile support is not guaranteed."
         featureName.Text = "AUTO CLICK"
-        local equipped = getEquippedWeapon()
-        statusLabel.Text = "Status: " .. (autoClickEnabled and (equipped and ("ON • " .. equipped.Name) or "ON • EQUIP A TOOL") or "OFF")
+        statusLabel.Text = "Status: " .. (autoClickEnabled and "ON • M1 INPUT" or "OFF")
         toggleButton.Text = autoClickEnabled and "STOP AUTO CLICK" or "START AUTO CLICK"
         toggleButton.BackgroundColor3 = autoClickEnabled and RED or GREEN
         autoNav.BackgroundColor3 = Color3.fromRGB(91, 68, 42)
@@ -632,7 +637,7 @@ toggleButton.MouseButton1Click:Connect(function()
         else
             local ok, message = startAutoClick()
             if not ok then
-                statusLabel.Text = "Unsupported: click API not found"
+                statusLabel.Text = "Unsupported: executor M1 API unavailable"
                 warn("[Auto Click] " .. message)
             end
         end
@@ -720,29 +725,5 @@ end))
 
 refreshPage()
 
--- Stop Auto Click when the character dies.
-local function bindDeathStop(character)
-    task.spawn(function()
-        local humanoid = character:FindFirstChildOfClass("Humanoid") or character:WaitForChild("Humanoid", 5)
-        if humanoid then
-            humanoid.Died:Connect(stopAutoClick)
-        end
-    end)
-end
-
-if Player.Character then bindDeathStop(Player.Character) end
-table.insert(connections, Player.CharacterAdded:Connect(bindDeathStop))
-
--- Refresh the equipped Tool status while the Auto Click page is open.
-task.spawn(function()
-    while gui.Parent and not closed do
-        if currentPage == "AUTO" and autoClickEnabled then
-            local equipped = getEquippedWeapon()
-            statusLabel.Text = "Status: " .. (equipped and ("ON • " .. equipped.Name) or "ON • EQUIP A TOOL")
-        end
-        task.wait(0.25)
-    end
-end)
-
 print("[Visual Control Center] Loaded. Avatar toggles the menu.")
-print("Features: FPS Booster Ultra | Blox Fruits Gray Map Ultra | Tool Auto Click")
+print("Features: FPS Booster Ultra | Blox Fruits Gray Map Ultra | Weapon-independent M1 Auto Click")
