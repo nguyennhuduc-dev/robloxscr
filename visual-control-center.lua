@@ -232,31 +232,28 @@ table.insert(connections, Lighting.DescendantAdded:Connect(function(obj)
 end))
 
 
--- Auto Click uses the executor's mouse click API at the current pointer position.
--- It does not move the pointer or choose a target for the player.
+-- Auto Click activates an equipped Roblox Tool directly.
+-- It does not send mouse/touch input, move the pointer, or click UI controls.
+-- It only activates while a Tool is parented to the local character.
 local function stopAutoClick()
     autoClickEnabled = false
     autoClickGeneration += 1
 end
 
-local function startAutoClick()
-    local clickFunction = nil
+local function getEquippedWeapon()
+    local character = Player.Character
+    if not character then return nil end
 
-    if type(mouse1click) == "function" then
-        clickFunction = mouse1click
-    elseif type(mouse1press) == "function" and type(mouse1release) == "function" then
-        clickFunction = function()
-            mouse1press()
-            task.wait(0.03)
-            mouse1release()
+    for _, child in ipairs(character:GetChildren()) do
+        if child:IsA("Tool") then
+            return child
         end
     end
 
-    if not clickFunction then
-        autoClickEnabled = false
-        return false, "Executor does not expose mouse1click or mouse1press/mouse1release."
-    end
+    return nil
+end
 
+local function startAutoClick()
     stopAutoClick()
     autoClickEnabled = true
     autoClickGeneration += 1
@@ -264,7 +261,14 @@ local function startAutoClick()
 
     task.spawn(function()
         while autoClickEnabled and autoClickGeneration == thisGeneration do
-            pcall(clickFunction)
+            local weapon = getEquippedWeapon()
+
+            if weapon and weapon.Parent == Player.Character then
+                pcall(function()
+                    weapon:Activate()
+                end)
+            end
+
             task.wait(math.clamp(autoClickInterval, 0.05, 5))
         end
     end)
@@ -582,9 +586,9 @@ local function refreshPage()
         autoNav.BackgroundColor3 = ROW
     else
         pageTitle.Text = "Auto Click"
-        pageDescription.Text = "Repeatedly clicks at the current pointer position. Keep the pointer over your intended target."
+        pageDescription.Text = "Activates an equipped Tool only. No mouse clicks or screen touches are sent."
         featureName.Text = "AUTO CLICK"
-        statusLabel.Text = "Status: " .. (autoClickEnabled and "ON" or "OFF")
+        statusLabel.Text = "Status: " .. (autoClickEnabled and (getEquippedWeapon() and "ON • WEAPON EQUIPPED" or "ON • EQUIP A TOOL") or "OFF")
         toggleButton.Text = autoClickEnabled and "STOP AUTO CLICK" or "START AUTO CLICK"
         toggleButton.BackgroundColor3 = autoClickEnabled and RED or GREEN
         autoNav.BackgroundColor3 = Color3.fromRGB(91, 68, 42)
