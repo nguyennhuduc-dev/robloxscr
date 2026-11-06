@@ -11,6 +11,8 @@ local Players = game:GetService("Players")
 local Lighting = game:GetService("Lighting")
 local Workspace = game:GetService("Workspace")
 local TweenService = game:GetService("TweenService")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
 local CoreGui = game:GetService("CoreGui")
 
 local Player = Players.LocalPlayer
@@ -321,7 +323,7 @@ ScreenGui.ResetOnSpawn = false
 ScreenGui.Parent = GUIParent
 
 local Frame = Instance.new("Frame")
-Frame.Size = UDim2.fromOffset(250, 190)
+Frame.Size = UDim2.fromOffset(250, 220)
 Frame.Position = UDim2.new(0.5, -125, 0.35, 0)
 Frame.BackgroundColor3 = Color3.fromRGB(18, 22, 35)
 Frame.BorderSizePixel = 0
@@ -355,6 +357,16 @@ Status.Font = Enum.Font.Gotham
 Status.TextSize = 12
 Status.Parent = Frame
 
+local FPSLabel = Instance.new("TextLabel")
+FPSLabel.Size = UDim2.new(1, -20, 0, 20)
+FPSLabel.Position = UDim2.fromOffset(10, 62)
+FPSLabel.BackgroundTransparency = 1
+FPSLabel.Text = "FPS: measuring..."
+FPSLabel.TextColor3 = Color3.fromRGB(120, 220, 255)
+FPSLabel.Font = Enum.Font.Gotham
+FPSLabel.TextSize = 12
+FPSLabel.Parent = Frame
+
 local function CreateButton(name, text, y, color)
 
     local Button = Instance.new("TextButton")
@@ -377,21 +389,21 @@ end
 local BoostButton = CreateButton(
     "Boost",
     "ENABLE BOOST",
-    75,
+    88,
     Color3.fromRGB(20, 145, 85)
 )
 
 local RestoreButton = CreateButton(
     "Restore",
     "RESTORE SETTINGS",
-    120,
+    132,
     Color3.fromRGB(180, 90, 40)
 )
 
 local CloseButton = CreateButton(
     "Close",
     "CLOSE GUI",
-    165,
+    176,
     Color3.fromRGB(65, 75, 100)
 )
 
@@ -435,20 +447,22 @@ RestoreButton.MouseButton1Click:Connect(function()
 end)
 
 CloseButton.MouseButton1Click:Connect(function()
-
-    ScreenGui:Destroy()
+    if env.FPSBoosterCleanup then
+        env.FPSBoosterCleanup()
+    else
+        ScreenGui:Destroy()
+    end
 end)
 
 --==================================================
 -- DRAG GUI
 --==================================================
 
-local UserInputService =
-    game:GetService("UserInputService")
-
 local dragging = false
 local dragStart
 local startPosition
+local dragInputConnection
+local dragEndConnection
 
 Title.InputBegan:Connect(function(input)
 
@@ -461,7 +475,7 @@ Title.InputBegan:Connect(function(input)
     end
 end)
 
-UserInputService.InputChanged:Connect(function(input)
+dragInputConnection = UserInputService.InputChanged:Connect(function(input)
 
     if dragging and (
         input.UserInputType == Enum.UserInputType.Touch
@@ -479,7 +493,7 @@ UserInputService.InputChanged:Connect(function(input)
     end
 end)
 
-UserInputService.InputEnded:Connect(function(input)
+dragEndConnection = UserInputService.InputEnded:Connect(function(input)
 
     if input.UserInputType == Enum.UserInputType.Touch
     or input.UserInputType == Enum.UserInputType.MouseButton1 then
@@ -492,9 +506,36 @@ end)
 -- CLEANUP
 --==================================================
 
+local fpsConnection
+local frameCount = 0
+local elapsed = 0
+
+fpsConnection = RunService.RenderStepped:Connect(function(dt)
+    frameCount += 1
+    elapsed += dt
+    if elapsed >= 1 then
+        FPSLabel.Text = "FPS: " .. math.floor(frameCount / elapsed + 0.5)
+        frameCount = 0
+        elapsed = 0
+    end
+end)
+
 env.FPSBoosterCleanup = function()
 
     StopBoost()
+
+    if fpsConnection then
+        fpsConnection:Disconnect()
+        fpsConnection = nil
+    end
+    if dragInputConnection then
+        dragInputConnection:Disconnect()
+        dragInputConnection = nil
+    end
+    if dragEndConnection then
+        dragEndConnection:Disconnect()
+        dragEndConnection = nil
+    end
 
     if IntroGui then
         IntroGui:Destroy()
