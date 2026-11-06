@@ -24,13 +24,14 @@ This repository provides client-side Luau scripts for visual customization and o
 
 ### `visual-control-center.lua`
 
-One menu with independent controls for both features:
+A Banana Cat Hub-inspired interface with **only the two original visual features**:
 
-- **FPS Booster:** disables selected particles, trails, beams, smoke, fire, sparkles, post effects, and selected shadows.
-- **Gray Map:** recolors eligible map parts and terrain materials gray, while attempting to preserve water.
-- **Restore All:** restores saved visual properties from both features.
-- **Draggable UI:** move the menu on screen.
-- **Close:** restores settings and removes the menu.
+- **FPS Booster Ultra:** toggles selected particles, trails, beams, smoke, fire, sparkles, post effects, shadows, and selected lighting settings.
+- **Blox Fruits Gray Map Ultra:** toggles eligible map parts and terrain materials to gray while attempting to preserve water.
+- **Floating avatar button:** tap the avatar to hide or show the main menu.
+- **Two navigation tabs:** FPS Booster Ultra and Gray Map Ultra.
+- **Restore Both Features:** restores the saved visual properties from both features.
+- **Draggable menu and avatar:** move the panel and floating avatar on screen.
 
 **Delta loader**
 ```lua
