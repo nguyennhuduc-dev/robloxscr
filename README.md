@@ -1,11 +1,11 @@
-# ⚡ Roblox FPS Booster Ultra & Blox Fruits Gray Map
+# ⚡ Roblox Visual Control Center
 
 <p align="center">
-  <img src="assets/file_000000005c5082079ef4c59766fca733.png" alt="Roblox FPS Booster banner" width="100%" />
+  <img src="assets/file_000000005c5082079ef4c59766fca733.png" alt="Roblox visual tools banner" width="100%" />
 </p>
 <p align="center">
-  <strong>Client-side Luau visual optimization tools for Roblox</strong><br>
-  General FPS optimization · Blox Fruits grayscale map
+  <strong>Client-side Luau visual tools for Roblox</strong><br>
+  FPS optimization · Blox Fruits grayscale map · Combined control menu
 </p>
 
 <p align="center">
@@ -18,21 +18,35 @@
 
 ## 📌 About
 
-This repository contains client-side Luau scripts that adjust visual effects in Roblox experiences. The scripts are separate: choose the one that matches what you want to change.
+This repository provides client-side Luau scripts for visual customization and optimization in Roblox. You can run each feature separately or use the combined **Visual Control Center** menu to choose which features to enable.
 
-## 📦 Scripts
+## 🧭 Recommended: Visual Control Center
+
+### `visual-control-center.lua`
+
+One menu with independent controls for both features:
+
+- **FPS Booster:** disables selected particles, trails, beams, smoke, fire, sparkles, post effects, and selected shadows.
+- **Gray Map:** recolors eligible map parts and terrain materials gray, while attempting to preserve water.
+- **Restore All:** restores saved visual properties from both features.
+- **Draggable UI:** move the menu on screen.
+- **Close:** restores settings and removes the menu.
+
+**Delta loader**
+```lua
+loadstring(game:HttpGet(
+    "https://raw.githubusercontent.com/nguyennhuduc-dev/robloxscr/refs/heads/main/visual-control-center.lua"
+))()
+```
+
+**File:** [visual-control-center.lua](visual-control-center.lua)
+
+## 📦 Individual scripts
 
 ### 1. Roblox FPS Booster Ultra — `roblox.lua`
 
-A general-purpose visual optimization script.
+General-purpose visual optimization with its own GUI and approximate FPS counter.
 
-**Features**
-- Disables selected particle, trail, beam, smoke, fire, and sparkle effects.
-- Adjusts selected Lighting and post-processing effects.
-- Reduces selected shadow and terrain water visual settings.
-- Includes a draggable GUI, approximate FPS display, and restore controls.
-
-**Delta loader**
 ```lua
 loadstring(game:HttpGet(
     "https://raw.githubusercontent.com/nguyennhuduc-dev/robloxscr/refs/heads/main/roblox.lua"
@@ -43,17 +57,8 @@ loadstring(game:HttpGet(
 
 ### 2. Blox Fruits Gray Map Ultra — `blox-fruits-gray-map.lua`
 
-A Blox Fruits-focused map recoloring script. It attempts to turn accessible map parts and terrain material colors gray while leaving water-colored objects and Terrain Water unchanged.
+Standalone map grayscale script with a restore button.
 
-**Features**
-- Recolors eligible map BaseParts to gray.
-- Hides eligible Decal and Texture instances.
-- Changes Terrain material colors except Water.
-- Skips character models, NPC models with Humanoids, Tools, and Accessories.
-- Watches newly added Workspace objects while enabled.
-- Includes a GUI to restore saved colors/materials or re-enable grayscale.
-
-**Delta loader**
 ```lua
 loadstring(game:HttpGet(
     "https://raw.githubusercontent.com/nguyennhuduc-dev/robloxscr/refs/heads/main/blox-fruits-gray-map.lua"
@@ -62,22 +67,24 @@ loadstring(game:HttpGet(
 
 **File:** [blox-fruits-gray-map.lua](blox-fruits-gray-map.lua)
 
-> The sea is preserved by skipping Terrain Water and objects detected as water by material or name. Some Blox Fruits water and map assets may use custom meshes, textures, or naming, so perfect separation cannot be guaranteed.
-
 ## 🚀 How to use
 
 1. Join the Roblox experience.
 2. Open your supported executor (for example, Delta).
-3. Paste the loader for the script you want to run.
-4. Execute it and use the on-screen controls.
-5. Use the restore option before closing when you want to return saved visual properties.
+3. For the combined menu, paste the **Visual Control Center** loader above.
+4. Tap **FPS BOOSTER** and/or **GRAY MAP** to enable each feature independently.
+5. Tap **RESTORE ALL SETTINGS** to turn both features off and restore saved properties.
+6. Tap **X** to restore settings and close the menu.
+
+For Blox Fruits, Gray Map is designed to preserve Terrain Water and objects identified as water. Custom game assets may not always be identified correctly.
 
 ## ⚠️ Notes & limitations
 
 - These scripts make **client-side visual changes**. They do not modify server data, player stats, combat logic, or game progression.
-- They do not guarantee higher FPS; results depend on the device, experience, and rendering workload.
-- Some visual effects or map objects may be recreated by the game or may not be accessible to the script.
-- Restore features can only restore properties that were successfully recorded. If the game changes an object while the script is running, the restored appearance may not exactly match the original.
+- FPS improvements are not guaranteed; results depend on the device, experience, and rendering workload.
+- Some effects or map objects may be recreated by the game or may not be accessible to the script.
+- Restore can only return properties that were successfully recorded. If the game changes an object while a feature is active, the result may not exactly match its original appearance.
+- The FPS Booster can reduce water wave effects; if keeping the sea's original appearance is important, leave FPS Booster off and use Gray Map alone.
 - Disabling or recoloring visuals can make gameplay cues harder to see.
 - Compatibility may change after Roblox, game, or executor updates. Test carefully and stop if you encounter issues.
 
@@ -86,6 +93,7 @@ loadstring(game:HttpGet(
 ```text
 robloxscr/
 ├── README.md
+├── visual-control-center.lua
 ├── roblox.lua
 └── blox-fruits-gray-map.lua
 ```
