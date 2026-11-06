@@ -233,12 +233,20 @@ table.insert(connections, Lighting.DescendantAdded:Connect(function(obj)
 end))
 
 
--- Auto Click uses executor-provided mouse input APIs.
--- No weapon detection: sends a left-click at the executor's current click position.
--- Availability and behavior depend on the executor/platform; mobile support is not guaranteed.
+-- Auto Attack uses ordinary executor M1 input while a Tool is equipped.
+-- This does not forge combat remotes or guarantee that the game accepts every hit.
+-- Executor input support varies; Delta Android compatibility is not guaranteed.
 local function stopAutoClick()
     autoClickEnabled = false
     autoClickGeneration += 1
+end
+
+local function hasEquippedTool()
+    local character = Player.Character
+    if not character then return false end
+    local humanoid = character:FindFirstChildOfClass("Humanoid")
+    if not humanoid or humanoid.Health <= 0 then return false end
+    return character:FindFirstChildOfClass("Tool") ~= nil
 end
 
 local function sendM1Click()
@@ -270,12 +278,13 @@ local function startAutoClick()
 
     task.spawn(function()
         while autoClickEnabled and autoClickGeneration == thisGeneration do
-            -- Pause input while the menu is visible so repeated M1 cannot press UI buttons.
-            if not menuIsVisible then
+            -- Never send M1 while the menu is visible. Only click with a living
+            -- character and an equipped Tool; otherwise wait for a valid state.
+            if not menuIsVisible and hasEquippedTool() then
                 local ok, err = sendM1Click()
                 if not ok then
                     stopAutoClick()
-                    warn("[Auto Click] Stopped: " .. tostring(err))
+                    warn("[Auto Attack] Stopped: " .. tostring(err))
                     break
                 end
             end
@@ -596,7 +605,7 @@ local function refreshPage()
         autoNav.BackgroundColor3 = ROW
     else
         pageTitle.Text = "Auto Click"
-        pageDescription.Text = "Repeated M1 clicks through executor input. No weapon detection; mobile support is not guaranteed."
+        pageDescription.Text = "Repeated M1 input while a living character has an equipped Tool. Damage depends on the game and executor support."
         featureName.Text = "AUTO CLICK"
         statusLabel.Text = "Status: " .. (autoClickEnabled and "ON • M1 INPUT" or "OFF")
         toggleButton.Text = autoClickEnabled and "STOP AUTO CLICK" or "START AUTO CLICK"
@@ -736,4 +745,4 @@ end))
 refreshPage()
 
 print("[Visual Control Center] Loaded. Avatar toggles the menu.")
-print("Features: FPS Booster Ultra | Blox Fruits Gray Map Ultra | Weapon-independent M1 Auto Click")
+print("Features: FPS Booster Ultra | Blox Fruits Gray Map Ultra | Equipped-Tool M1 Auto Attack")
