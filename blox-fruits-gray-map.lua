@@ -39,17 +39,37 @@ local function belongsToCharacterOrTool(obj)
     return false
 end
 
--- Do not recolor ocean / water parts.
+-- Do not recolor ocean / water parts or their attached textures.
 local function isWaterObject(obj)
-    if obj:IsA("BasePart") and obj.Material == Enum.Material.Water then
-        return true
+    local current = obj
+    while current and current ~= Workspace do
+        if current:IsA("BasePart") and current.Material == Enum.Material.Water then
+            return true
+        end
+
+        local name = string.lower(current.Name)
+        if string.find(name, "water", 1, true)
+            or string.find(name, "ocean", 1, true)
+            or string.find(name, "sea", 1, true) then
+            return true
+        end
+        current = current.Parent
     end
 
-    local name = string.lower(obj.Name)
-    return string.find(name, "water", 1, true) ~= nil
-        or string.find(name, "ocean", 1, true) ~= nil
-        or string.find(name, "sea", 1, true) ~= nil
+    if obj:IsA("BasePart") then
+        -- Protect unnamed custom ocean planes by shape and blue/cyan color.
+        local size = obj.Size
+        if size.X >= 80 and size.Z >= 80
+            and size.Y <= math.min(size.X, size.Z) * 0.12 then
+            local hue, saturation, value = obj.Color:ToHSV()
+            if hue >= 0.43 and hue <= 0.75
+                and saturation >= 0.18 and value >= 0.12 then
+                return true
+            end
+        end
     end
+
+    return false
 end
 
 local function grayPart(obj)
