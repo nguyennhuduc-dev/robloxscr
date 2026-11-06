@@ -16,6 +16,9 @@ local Player = Players.LocalPlayer
 local GRAY = Color3.fromRGB(135, 135, 135)
 local fpsEnabled = false
 local grayEnabled = false
+local autoClickEnabled = false
+local autoClickInterval = 0.1
+local autoClickGeneration = 0
 local closed = false
 
 local original = {}
@@ -229,8 +232,48 @@ table.insert(connections, Lighting.DescendantAdded:Connect(function(obj)
 end))
 
 
+-- Auto Click uses the executor's mouse click API at the current pointer position.
+-- It does not move the pointer or choose a target for the player.
+local function stopAutoClick()
+    autoClickEnabled = false
+    autoClickGeneration += 1
+end
+
+local function startAutoClick()
+    local clickFunction = nil
+
+    if type(mouse1click) == "function" then
+        clickFunction = mouse1click
+    elseif type(mouse1press) == "function" and type(mouse1release) == "function" then
+        clickFunction = function()
+            mouse1press()
+            task.wait(0.03)
+            mouse1release()
+        end
+    end
+
+    if not clickFunction then
+        autoClickEnabled = false
+        return false, "Executor does not expose mouse1click or mouse1press/mouse1release."
+    end
+
+    stopAutoClick()
+    autoClickEnabled = true
+    autoClickGeneration += 1
+    local thisGeneration = autoClickGeneration
+
+    task.spawn(function()
+        while autoClickEnabled and autoClickGeneration == thisGeneration do
+            pcall(clickFunction)
+            task.wait(math.clamp(autoClickInterval, 0.05, 5))
+        end
+    end)
+
+    return true
+end
+
 --==================================================
--- BANANA-STYLE UI: ONLY TWO ORIGINAL FEATURES
+-- BANANA-STYLE UI: THREE INDEPENDENT FEATURES
 -- Floating avatar toggles the complete menu.
 --==================================================
 
@@ -356,7 +399,7 @@ sideHeading.TextXAlignment = Enum.TextXAlignment.Left
 sideHeading.Parent = sidebar
 
 local nav = Instance.new("Frame")
-nav.Size = UDim2.new(1, -12, 0, 112)
+nav.Size = UDim2.new(1, -12, 0, 168)
 nav.Position = UDim2.fromOffset(6, 48)
 nav.BackgroundTransparency = 1
 nav.Parent = sidebar
@@ -397,7 +440,7 @@ pageDescription.TextXAlignment = Enum.TextXAlignment.Left
 pageDescription.Parent = content
 
 local featureCard = Instance.new("Frame")
-featureCard.Size = UDim2.new(1, -24, 0, 112)
+featureCard.Size = UDim2.new(1, -24, 0, 150)
 featureCard.Position = UDim2.fromOffset(12, 100)
 featureCard.BackgroundColor3 = ROW
 featureCard.BorderSizePixel = 0
@@ -439,9 +482,9 @@ addCorner(toggleButton, 9)
 
 local restoreButton = Instance.new("TextButton")
 restoreButton.Size = UDim2.new(1, -24, 0, 40)
-restoreButton.Position = UDim2.fromOffset(12, 224)
+restoreButton.Position = UDim2.fromOffset(12, 264)
 restoreButton.BackgroundColor3 = Color3.fromRGB(133, 91, 45)
-restoreButton.Text = "RESTORE BOTH FEATURES"
+restoreButton.Text = "RESTORE ALL + STOP AUTO CLICK"
 restoreButton.TextColor3 = WHITE
 restoreButton.TextSize = 12
 restoreButton.Font = Enum.Font.GothamBold
@@ -461,6 +504,41 @@ footer.Parent = content
 -- Only two navigation options: the user's original features.
 local currentPage = "FPS"
 
+local intervalLabel = Instance.new("TextLabel")
+intervalLabel.Size = UDim2.new(1, -24, 0, 20)
+intervalLabel.Position = UDim2.fromOffset(12, 184)
+intervalLabel.BackgroundTransparency = 1
+intervalLabel.Text = "Click interval (seconds) — default 0.10"
+intervalLabel.TextColor3 = MUTED
+intervalLabel.TextSize = 11
+intervalLabel.Font = Enum.Font.Gotham
+intervalLabel.TextXAlignment = Enum.TextXAlignment.Left
+intervalLabel.Visible = false
+intervalLabel.Parent = content
+
+local intervalBox = Instance.new("TextBox")
+intervalBox.Size = UDim2.new(1, -24, 0, 30)
+intervalBox.Position = UDim2.fromOffset(12, 207)
+intervalBox.BackgroundColor3 = ROW
+intervalBox.Text = "0.10"
+intervalBox.PlaceholderText = "0.05 to 5 seconds"
+intervalBox.TextColor3 = WHITE
+intervalBox.PlaceholderColor3 = MUTED
+intervalBox.TextSize = 13
+intervalBox.Font = Enum.Font.Gotham
+intervalBox.ClearTextOnFocus = false
+intervalBox.Visible = false
+intervalBox.Parent = content
+addCorner(intervalBox, 8)
+
+intervalBox.FocusLost:Connect(function()
+    local value = tonumber(intervalBox.Text)
+    if value then
+        autoClickInterval = math.clamp(value, 0.05, 5)
+    end
+    intervalBox.Text = string.format("%.2f", autoClickInterval)
+end)
+
 local function makeNavButton(label)
     local button = Instance.new("TextButton")
     button.Size = UDim2.new(1, 0, 0, 48)
@@ -476,8 +554,12 @@ end
 
 local fpsNav = makeNavButton("FPS BOOSTER ULTRA")
 local grayNav = makeNavButton("GRAY MAP ULTRA")
+local autoNav = makeNavButton("AUTO CLICK")
 
 local function refreshPage()
+    intervalLabel.Visible = currentPage == "AUTO"
+    intervalBox.Visible = currentPage == "AUTO"
+
     if currentPage == "FPS" then
         pageTitle.Text = "FPS Booster Ultra"
         pageDescription.Text = "General visual optimization: selected effects, shadows and fog."
@@ -487,7 +569,8 @@ local function refreshPage()
         toggleButton.BackgroundColor3 = fpsEnabled and RED or GREEN
         fpsNav.BackgroundColor3 = Color3.fromRGB(91, 68, 42)
         grayNav.BackgroundColor3 = ROW
-    else
+        autoNav.BackgroundColor3 = ROW
+    elseif currentPage == "GRAY" then
         pageTitle.Text = "Blox Fruits Gray Map"
         pageDescription.Text = "Turn eligible map colors gray while attempting to preserve water."
         featureName.Text = "GRAY MAP ULTRA"
@@ -496,6 +579,17 @@ local function refreshPage()
         toggleButton.BackgroundColor3 = grayEnabled and RED or GREEN
         grayNav.BackgroundColor3 = Color3.fromRGB(91, 68, 42)
         fpsNav.BackgroundColor3 = ROW
+        autoNav.BackgroundColor3 = ROW
+    else
+        pageTitle.Text = "Auto Click"
+        pageDescription.Text = "Repeatedly clicks at the current pointer position. Keep the pointer over your intended target."
+        featureName.Text = "AUTO CLICK"
+        statusLabel.Text = "Status: " .. (autoClickEnabled and "ON" or "OFF")
+        toggleButton.Text = autoClickEnabled and "STOP AUTO CLICK" or "START AUTO CLICK"
+        toggleButton.BackgroundColor3 = autoClickEnabled and RED or GREEN
+        autoNav.BackgroundColor3 = Color3.fromRGB(91, 68, 42)
+        fpsNav.BackgroundColor3 = ROW
+        grayNav.BackgroundColor3 = ROW
     end
 end
 
@@ -509,6 +603,11 @@ grayNav.MouseButton1Click:Connect(function()
     refreshPage()
 end)
 
+autoNav.MouseButton1Click:Connect(function()
+    currentPage = "AUTO"
+    refreshPage()
+end)
+
 toggleButton.MouseButton1Click:Connect(function()
     if currentPage == "FPS" then
         if fpsEnabled then
@@ -516,11 +615,21 @@ toggleButton.MouseButton1Click:Connect(function()
         else
             applyFPS()
         end
-    else
+    elseif currentPage == "GRAY" then
         if grayEnabled then
             restoreGray()
         else
             applyGray()
+        end
+    else
+        if autoClickEnabled then
+            stopAutoClick()
+        else
+            local ok, message = startAutoClick()
+            if not ok then
+                statusLabel.Text = "Unsupported: click API not found"
+                warn("[Auto Click] " .. message)
+            end
         end
     end
     refreshPage()
@@ -529,6 +638,7 @@ end)
 restoreButton.MouseButton1Click:Connect(function()
     restoreFPS()
     restoreGray()
+    stopAutoClick()
     refreshPage()
 end)
 
@@ -606,4 +716,4 @@ end))
 refreshPage()
 
 print("[Visual Control Center] Loaded. Avatar toggles the menu.")
-print("Features: FPS Booster Ultra | Blox Fruits Gray Map Ultra")
+print("Features: FPS Booster Ultra | Blox Fruits Gray Map Ultra | Auto Click")
