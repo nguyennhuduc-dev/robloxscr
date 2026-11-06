@@ -1,89 +1,93 @@
-# ⚡ Roblox FPS Booster Ultra
+# ⚡ Roblox FPS Booster Ultra & Blox Fruits Gray Map
 
 <p align="center">
-  <img src="assets/file_000000005c5082079ef4c59766fca733.png" alt="Roblox FPS Booster Ultra banner" width="100%" />
+  <img src="assets/file_000000005c5082079ef4c59766fca733.png" alt="Roblox FPS Booster banner" width="100%" />
 </p>
 <p align="center">
-  <strong>A lightweight client-side visual optimization script for Roblox</strong><br>
-  Built with Luau · Designed for general Roblox experiences
+  <strong>Client-side Luau visual optimization tools for Roblox</strong><br>
+  General FPS optimization · Blox Fruits grayscale map
 </p>
 
 <p align="center">
   <img src="https://img.shields.io/badge/Language-Luau-00BFFF?style=for-the-badge&logo=lua" alt="Luau" />
   <img src="https://img.shields.io/badge/Platform-Roblox-111111?style=for-the-badge&logo=roblox" alt="Roblox" />
   <img src="https://img.shields.io/badge/Executor-Delta-5865F2?style=for-the-badge" alt="Delta" />
-  <img src="https://img.shields.io/badge/Version-Ultra-00C853?style=for-the-badge" alt="Version Ultra" />
 </p>
 
 ---
 
 ## 📌 About
 
-**Roblox FPS Booster Ultra** is a client-side Luau script that reduces selected visual effects in a Roblox experience. It includes a compact control panel, an animated startup screen, and a live FPS display.
+This repository contains client-side Luau scripts that adjust visual effects in Roblox experiences. The scripts are separate: choose the one that matches what you want to change.
 
-The script is intended for general use. Actual performance improvements depend on the device, the Roblox experience, and its rendering workload. It does not unlock FPS beyond the device or client limit, and it cannot guarantee a specific FPS.
+## 📦 Scripts
 
-## ✨ Features
+### 1. Roblox FPS Booster Ultra — `roblox.lua`
 
-| Feature | Description |
-| --- | --- |
-| ⚡ Visual optimization | Disables selected particles, trails, beams, smoke, fire, and sparkles |
-| 💡 Lighting optimization | Turns off selected post-processing and shadow effects |
-| 🌊 Terrain adjustment | Reduces water wave and reflection effects |
-| 📊 FPS display | Shows an approximate live client FPS reading |
-| 🎨 Intro animation | Displays a short animated initialization screen |
-| 🖱️ Draggable interface | Move the control panel using its title area |
-| ♻️ Restore settings | Attempts to restore properties changed by the script |
-| 🧹 Cleanup | Stops tracked connections and removes the interface |
+A general-purpose visual optimization script.
 
-## 🚀 Run with Delta
+**Features**
+- Disables selected particle, trail, beam, smoke, fire, and sparkle effects.
+- Adjusts selected Lighting and post-processing effects.
+- Reduces selected shadow and terrain water visual settings.
+- Includes a draggable GUI, approximate FPS display, and restore controls.
 
-Run this loader in your supported Roblox executor:
-
+**Delta loader**
 ```lua
 loadstring(game:HttpGet(
     "https://raw.githubusercontent.com/nguyennhuduc-dev/robloxscr/refs/heads/main/roblox.lua"
 ))()
 ```
 
-> Only run scripts you have reviewed and trust. Avoid executing code from unknown sources.
+**File:** [roblox.lua](roblox.lua)
 
-## 🎮 How to use
+### 2. Blox Fruits Gray Map Ultra — `blox-fruits-gray-map.lua`
 
-1. Execute the loader after joining a Roblox experience.
-2. Wait for the intro screen to finish.
-3. Drag the panel by its title area if you want to reposition it.
-4. Select **ENABLE BOOST** to apply the visual changes.
-5. Select **DISABLE BOOST** or **RESTORE SETTINGS** to stop the optimization and restore saved properties.
-6. Select **CLOSE GUI** to clean up the interface and tracked connections.
+A Blox Fruits-focused map recoloring script. It attempts to turn accessible map parts and terrain material colors gray while leaving water-colored objects and Terrain Water unchanged.
 
-## ⚙️ What it changes
+**Features**
+- Recolors eligible map BaseParts to gray.
+- Hides eligible Decal and Texture instances.
+- Changes Terrain material colors except Water.
+- Skips character models, NPC models with Humanoids, Tools, and Accessories.
+- Watches newly added Workspace objects while enabled.
+- Includes a GUI to restore saved colors/materials or re-enable grayscale.
 
-The script targets selected client-visible properties, including:
+**Delta loader**
+```lua
+loadstring(game:HttpGet(
+    "https://raw.githubusercontent.com/nguyennhuduc-dev/robloxscr/refs/heads/main/blox-fruits-gray-map.lua"
+))()
+```
 
-- Particle emitters, trails, beams, smoke, fire, and sparkles.
-- Post-processing effects under Lighting.
-- Part and light shadow settings.
-- Lighting global shadows and fog distance.
-- Terrain water wave and reflectance settings.
+**File:** [blox-fruits-gray-map.lua](blox-fruits-gray-map.lua)
 
-It also watches for newly added Workspace and Lighting descendants while the boost is enabled.
+> The sea is preserved by skipping Terrain Water and objects detected as water by material or name. Some Blox Fruits water and map assets may use custom meshes, textures, or naming, so perfect separation cannot be guaranteed.
+
+## 🚀 How to use
+
+1. Join the Roblox experience.
+2. Open your supported executor (for example, Delta).
+3. Paste the loader for the script you want to run.
+4. Execute it and use the on-screen controls.
+5. Use the restore option before closing when you want to return saved visual properties.
 
 ## ⚠️ Notes & limitations
 
-- This is a **client-side visual optimization**, not a server-side performance tool.
-- Some games rely on particles, lighting, or visual effects to communicate gameplay information. Disabling them may make parts of a game harder to see or understand.
-- The FPS number is an approximate measurement based on rendered frames.
-- The restore feature can only restore properties the script successfully recorded; game scripts may also change those properties while you play.
-- Compatibility may vary across Roblox updates, experiences, devices, and executors.
-- No FPS increase is guaranteed. Test the script in a suitable experience and stop using it if it causes problems.
+- These scripts make **client-side visual changes**. They do not modify server data, player stats, combat logic, or game progression.
+- They do not guarantee higher FPS; results depend on the device, experience, and rendering workload.
+- Some visual effects or map objects may be recreated by the game or may not be accessible to the script.
+- Restore features can only restore properties that were successfully recorded. If the game changes an object while the script is running, the restored appearance may not exactly match the original.
+- Disabling or recoloring visuals can make gameplay cues harder to see.
+- Compatibility may change after Roblox, game, or executor updates. Test carefully and stop if you encounter issues.
 
-## 📁 Repository
+## 📁 Repository structure
 
 ```text
 robloxscr/
 ├── README.md
-└── roblox.lua
+├── roblox.lua
+└── blox-fruits-gray-map.lua
 ```
 
 ## 👨‍💻 Developer
