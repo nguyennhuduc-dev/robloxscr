@@ -28,7 +28,7 @@ A Banana Cat Hub-inspired interface with **only the two original visual features
 
 - **FPS Booster Ultra:** toggles selected particles, trails, beams, smoke, fire, sparkles, post effects, shadows, and selected lighting settings.
 - **Blox Fruits Gray Map Ultra:** toggles eligible map parts and terrain materials to gray while preserving Terrain Water, named water/ocean/sea objects, and large thin blue/cyan ocean surfaces.
-- **Auto Click:** repeatedly clicks at the current pointer position with a configurable interval from 0.05 to 5 seconds (default 0.10 seconds); requires the executor to expose `mouse1click` or `mouse1press`/`mouse1release`.
+- **Auto Click:** calls `Tool:Activate()` on a Tool equipped by the local character, at a configurable interval from 0.05 to 5 seconds (default 0.10 seconds). It does not send mouse/touch input or click the screen; it waits when no Tool is equipped.
 - **Floating avatar button:** tap the avatar to hide or show the main menu.
 - **Three navigation tabs:** FPS Booster Ultra, Gray Map Ultra, and Auto Click.
 - **Restore All + Stop Auto Click:** restores saved visual properties and stops the Auto Click loop.
@@ -75,7 +75,7 @@ loadstring(game:HttpGet(
 2. Open your supported executor (for example, Delta).
 3. For the combined menu, paste the **Visual Control Center** loader above.
 4. Tap **FPS BOOSTER** and/or **GRAY MAP** to enable each feature independently.
-5. In **Auto Click**, set the interval (0.05–5 seconds) and tap **START AUTO CLICK**. Keep the pointer over the intended target; tap **STOP AUTO CLICK** to stop.
+5. In **Auto Click**, equip a weapon/Tool, set the interval (0.05–5 seconds), and tap **START AUTO CLICK**. It only activates the equipped Tool; tap **STOP AUTO CLICK** to stop.
 6. Tap **RESTORE ALL + STOP AUTO CLICK** to restore visual settings and stop Auto Click.
 6. Tap the floating avatar to hide or show the menu. The dash button in the header also hides it; tap the avatar again to reopen it.
 
@@ -83,8 +83,8 @@ For Blox Fruits, Gray Map skips Terrain Water, water/ocean/sea-named objects (in
 
 ## ⚠️ Notes & limitations
 
-- These scripts run client-side. Auto Click sends repeated input through executor-provided mouse APIs; it does not move the pointer or select a target.
-- Auto Click requires `mouse1click` or both `mouse1press` and `mouse1release` to be available in the executor. Some mobile executor/game combinations may not support these APIs, and touch input behavior can differ.
+- These scripts run client-side. Auto Click calls `Tool:Activate()` on the Tool currently equipped by the local character. It does not send mouse/touch input or click UI controls, and it waits while no Tool is equipped.
+- Auto Click only works with weapons/tools implemented as Roblox `Tool` instances whose activation behavior is supported by the game. Some experiences use custom combat systems, so `Tool:Activate()` may not trigger their attack.
 - These scripts do not modify server data, player stats, combat logic, or game progression.
 - FPS improvements are not guaranteed; results depend on the device, experience, and rendering workload.
 - Some effects or map objects may be recreated by the game or may not be accessible to the script.
