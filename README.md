@@ -9,10 +9,10 @@
 </p>
 
 <p align="center">
-  ![Luau](https://img.shields.io/badge/Language-Luau-00BFFF?style=for-the-badge&logo=lua)
-  ![Platform](https://img.shields.io/badge/Platform-Roblox-111111?style=for-the-badge&logo=roblox)
-  ![Executor](https://img.shields.io/badge/Executor-Delta-5865F2?style=for-the-badge)
-  ![Version](https://img.shields.io/badge/Version-Ultra-00C853?style=for-the-badge)
+  <img src="https://img.shields.io/badge/Language-Luau-00BFFF?style=for-the-badge&logo=lua" alt="Luau" />
+  <img src="https://img.shields.io/badge/Platform-Roblox-111111?style=for-the-badge&logo=roblox" alt="Roblox" />
+  <img src="https://img.shields.io/badge/Executor-Delta-5865F2?style=for-the-badge" alt="Delta" />
+  <img src="https://img.shields.io/badge/Version-Ultra-00C853?style=for-the-badge" alt="Version Ultra" />
 </p>
 
 ---
