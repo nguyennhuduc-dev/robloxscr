@@ -22,13 +22,13 @@ This repository provides client-side Luau scripts for visual customization and o
 
 ## 🧭 Recommended: Visual Control Center
 
-### `visual-control-center.lua`
+### `visual-control-center.lua` — Visual Control Center V3
 
 A Banana Cat Hub-inspired interface with **only the two original visual features**:
 
 - **FPS Booster Ultra:** toggles selected particles, trails, beams, smoke, fire, sparkles, post effects, shadows, and selected lighting settings.
 - **Blox Fruits Gray Map Ultra:** toggles eligible map parts and terrain materials to gray while preserving Terrain Water, named water/ocean/sea objects, and large thin blue/cyan ocean surfaces.
-- **Auto Click (Luau Tool activation):** calls `Tool:Activate()` on a Tool equipped by the local character, at a configurable interval from 0.05 to 5 seconds (default 0.10 seconds). It does not send mouse/touch input, move the pointer, or click UI controls. The status displays the equipped Tool name and refreshes while the Auto Click page is open. The loop stops when disabled or when the character dies.
+- **Auto Click (Luau Tool activation):** calls `Tool:Activate()` on a Tool equipped by the local character, at a configurable interval from 0.05 to 5 seconds (default 0.10 seconds). It does not send mouse/touch input, move the pointer, or click UI controls. The status displays the equipped Tool name and refreshes while the Auto Click page is open. The loop stops when disabled or when the character dies. The equipped Tool name/status refreshes while this page is open, and the interval controls are placed below the main action card to avoid overlapping the Start/Stop button.
 - **Floating avatar button:** tap the avatar to hide or show the main menu.
 - **Three navigation tabs:** FPS Booster Ultra, Gray Map Ultra, and Auto Click.
 - **Restore All + Stop Auto Click:** restores saved visual properties and stops the Auto Click loop.
