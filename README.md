@@ -74,8 +74,8 @@ loadstring(game:HttpGet(
 2. Open your supported executor (for example, Delta).
 3. For the combined menu, paste the **Visual Control Center** loader above.
 4. Tap **FPS BOOSTER** and/or **GRAY MAP** to enable each feature independently.
-5. Tap **RESTORE ALL SETTINGS** to turn both features off and restore saved properties.
-6. Tap **X** to restore settings and close the menu.
+5. Tap **RESTORE BOTH FEATURES** to turn both features off and restore saved properties.
+6. Tap the floating avatar to hide or show the menu. The dash button in the header also hides it; tap the avatar again to reopen it.
 
 For Blox Fruits, Gray Map is designed to preserve Terrain Water and objects identified as water. Custom game assets may not always be identified correctly.
 
