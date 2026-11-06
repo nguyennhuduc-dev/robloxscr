@@ -588,7 +588,8 @@ local function refreshPage()
         pageTitle.Text = "Auto Click"
         pageDescription.Text = "Luau Tool activation only. No simulated mouse clicks or screen touches. Some custom combat systems are unsupported."
         featureName.Text = "AUTO CLICK"
-        local equipped = getEquippedWeapon()\n        statusLabel.Text = "Status: " .. (autoClickEnabled and (equipped and ("ON • " .. equipped.Name) or "ON • EQUIP A TOOL") or "OFF")
+        local equipped = getEquippedWeapon()
+        statusLabel.Text = "Status: " .. (autoClickEnabled and (equipped and ("ON • " .. equipped.Name) or "ON • EQUIP A TOOL") or "OFF")
         toggleButton.Text = autoClickEnabled and "STOP AUTO CLICK" or "START AUTO CLICK"
         toggleButton.BackgroundColor3 = autoClickEnabled and RED or GREEN
         autoNav.BackgroundColor3 = Color3.fromRGB(91, 68, 42)
@@ -719,5 +720,29 @@ end))
 
 refreshPage()
 
+-- Stop Auto Click when the character dies.
+local function bindDeathStop(character)
+    task.spawn(function()
+        local humanoid = character:FindFirstChildOfClass("Humanoid") or character:WaitForChild("Humanoid", 5)
+        if humanoid then
+            humanoid.Died:Connect(stopAutoClick)
+        end
+    end)
+end
+
+if Player.Character then bindDeathStop(Player.Character) end
+table.insert(connections, Player.CharacterAdded:Connect(bindDeathStop))
+
+-- Refresh the equipped Tool status while the Auto Click page is open.
+task.spawn(function()
+    while gui.Parent and not closed do
+        if currentPage == "AUTO" and autoClickEnabled then
+            local equipped = getEquippedWeapon()
+            statusLabel.Text = "Status: " .. (equipped and ("ON • " .. equipped.Name) or "ON • EQUIP A TOOL")
+        end
+        task.wait(0.25)
+    end
+end)
+
 print("[Visual Control Center] Loaded. Avatar toggles the menu.")
-print("Features: FPS Booster Ultra | Blox Fruits Gray Map Ultra | Auto Click")
+print("Features: FPS Booster Ultra | Blox Fruits Gray Map Ultra | Tool Auto Click")
