@@ -207,161 +207,382 @@ table.insert(connections, Lighting.DescendantAdded:Connect(function(obj)
     end)
 end))
 
--- GUI
+
+--==================================================
+-- BANANA-STYLE UI: ONLY TWO ORIGINAL FEATURES
+-- Floating avatar toggles the complete menu.
+--==================================================
+
 local gui = Instance.new("ScreenGui")
 gui.Name = "RobloxVisualControlCenter"
 gui.ResetOnSpawn = false
+gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
 local parent
 pcall(function()
     if gethui then parent = gethui() end
 end)
-if not parent then
-    parent = Player:WaitForChild("PlayerGui")
-end
+if not parent then parent = Player:WaitForChild("PlayerGui") end
 gui.Parent = parent
 
+local GOLD = Color3.fromRGB(245, 195, 95)
+local DARK = Color3.fromRGB(20, 15, 13)
+local PANEL = Color3.fromRGB(34, 29, 28)
+local ROW = Color3.fromRGB(42, 39, 43)
+local WHITE = Color3.fromRGB(245, 243, 238)
+local MUTED = Color3.fromRGB(175, 170, 165)
+local GREEN = Color3.fromRGB(65, 145, 95)
+local RED = Color3.fromRGB(165, 70, 65)
+
+local function addCorner(obj, radius)
+    local c = Instance.new("UICorner")
+    c.CornerRadius = UDim.new(0, radius)
+    c.Parent = obj
+end
+
+local function addStroke(obj, color, thickness)
+    local s = Instance.new("UIStroke")
+    s.Color = color
+    s.Thickness = thickness
+    s.Parent = obj
+end
+
+-- Floating avatar button: tap to show/hide the menu.
+local avatar = Instance.new("ImageButton")
+avatar.Name = "FloatingAvatar"
+avatar.Size = UDim2.fromOffset(62, 62)
+avatar.Position = UDim2.new(0, 18, 0.5, -31)
+avatar.BackgroundColor3 = GOLD
+avatar.Image = "rbxthumb://type=AvatarHeadShot&id=" .. Player.UserId .. "&w=150&h=150"
+avatar.ScaleType = Enum.ScaleType.Crop
+avatar.AutoButtonColor = true
+avatar.Parent = gui
+addCorner(avatar, 100)
+addStroke(avatar, GOLD, 3)
+
+-- Main panel
 local frame = Instance.new("Frame")
-frame.Size = UDim2.fromOffset(270, 235)
-frame.Position = UDim2.new(0.5, -135, 0.35, 0)
-frame.BackgroundColor3 = Color3.fromRGB(20, 23, 33)
+frame.Name = "MainMenu"
+frame.Size = UDim2.new(0.88, 0, 0.78, 0)
+frame.Position = UDim2.new(0.5, 0, 0.5, 0)
+frame.AnchorPoint = Vector2.new(0.5, 0.5)
+frame.BackgroundColor3 = DARK
+frame.BackgroundTransparency = 0.04
 frame.BorderSizePixel = 0
 frame.Active = true
 frame.Parent = gui
+addCorner(frame, 14)
+addStroke(frame, Color3.fromRGB(150, 111, 53), 2)
 
-local corner = Instance.new("UICorner")
-corner.CornerRadius = UDim.new(0, 12)
-corner.Parent = frame
+local sizeLimit = Instance.new("UISizeConstraint")
+sizeLimit.MinSize = Vector2.new(310, 280)
+sizeLimit.MaxSize = Vector2.new(850, 620)
+sizeLimit.Parent = frame
 
-local stroke = Instance.new("UIStroke")
-stroke.Color = Color3.fromRGB(0, 190, 255)
-stroke.Thickness = 1.4
-stroke.Parent = frame
+-- Header
+local header = Instance.new("Frame")
+header.Size = UDim2.new(1, 0, 0, 52)
+header.BackgroundColor3 = Color3.fromRGB(65, 43, 28)
+header.BorderSizePixel = 0
+header.Parent = frame
+addCorner(header, 12)
 
 local title = Instance.new("TextLabel")
-title.Size = UDim2.new(1, -45, 0, 38)
-title.Position = UDim2.fromOffset(12, 5)
+title.Size = UDim2.new(1, -54, 1, 0)
+title.Position = UDim2.fromOffset(14, 0)
 title.BackgroundTransparency = 1
-title.Text = "VISUAL CONTROL CENTER"
-title.TextColor3 = Color3.fromRGB(0, 220, 255)
+title.Text = "VISUAL CONTROL CENTER  V2"
+title.TextColor3 = GOLD
+title.TextSize = 18
 title.Font = Enum.Font.GothamBold
-title.TextSize = 15
-title.TextXAlignment = Enum.TextXAlignment.Left
-title.Parent = frame
+title.TextXAlignment = Enum.TextXAlignment.Center
+title.Parent = header
 
-local close = Instance.new("TextButton")
-close.Size = UDim2.fromOffset(28, 26)
-close.Position = UDim2.new(1, -35, 0, 7)
-close.BackgroundColor3 = Color3.fromRGB(150, 55, 55)
-close.Text = "X"
-close.TextColor3 = Color3.new(1, 1, 1)
-close.Font = Enum.Font.GothamBold
-close.TextSize = 13
-close.Parent = frame
-Instance.new("UICorner", close).CornerRadius = UDim.new(0, 7)
+local hideButton = Instance.new("TextButton")
+hideButton.Size = UDim2.fromOffset(36, 34)
+hideButton.Position = UDim2.new(1, -43, 0, 9)
+hideButton.BackgroundColor3 = Color3.fromRGB(95, 57, 43)
+hideButton.Text = "—"
+hideButton.TextColor3 = WHITE
+hideButton.TextSize = 22
+hideButton.Font = Enum.Font.GothamBold
+hideButton.Parent = header
+addCorner(hideButton, 8)
 
-local subtitle = Instance.new("TextLabel")
-subtitle.Size = UDim2.new(1, -24, 0, 25)
-subtitle.Position = UDim2.fromOffset(12, 43)
-subtitle.BackgroundTransparency = 1
-subtitle.Text = "Choose a visual feature to enable"
-subtitle.TextColor3 = Color3.fromRGB(185, 190, 205)
-subtitle.Font = Enum.Font.Gotham
-subtitle.TextSize = 11
-subtitle.TextXAlignment = Enum.TextXAlignment.Left
-subtitle.Parent = frame
+-- Body layout
+local body = Instance.new("Frame")
+body.Size = UDim2.new(1, -16, 1, -62)
+body.Position = UDim2.fromOffset(8, 57)
+body.BackgroundTransparency = 1
+body.Parent = frame
 
-local function makeButton(text, y, color)
+local sidebar = Instance.new("Frame")
+sidebar.Size = UDim2.new(0.31, 0, 1, 0)
+sidebar.BackgroundColor3 = PANEL
+sidebar.BorderSizePixel = 0
+sidebar.Parent = body
+addCorner(sidebar, 10)
+
+local sideHeading = Instance.new("TextLabel")
+sideHeading.Size = UDim2.new(1, -18, 0, 38)
+sideHeading.Position = UDim2.fromOffset(10, 5)
+sideHeading.BackgroundTransparency = 1
+sideHeading.Text = "FEATURES"
+sideHeading.TextColor3 = GOLD
+sideHeading.TextSize = 15
+sideHeading.Font = Enum.Font.GothamBold
+sideHeading.TextXAlignment = Enum.TextXAlignment.Left
+sideHeading.Parent = sidebar
+
+local nav = Instance.new("Frame")
+nav.Size = UDim2.new(1, -12, 0, 112)
+nav.Position = UDim2.fromOffset(6, 48)
+nav.BackgroundTransparency = 1
+nav.Parent = sidebar
+
+local navLayout = Instance.new("UIListLayout")
+navLayout.Padding = UDim.new(0, 8)
+navLayout.Parent = nav
+
+local content = Instance.new("Frame")
+content.Size = UDim2.new(0.68, 0, 1, 0)
+content.Position = UDim2.new(0.32, 5, 0, 0)
+content.BackgroundColor3 = PANEL
+content.BorderSizePixel = 0
+content.Parent = body
+addCorner(content, 10)
+
+local pageTitle = Instance.new("TextLabel")
+pageTitle.Size = UDim2.new(1, -24, 0, 42)
+pageTitle.Position = UDim2.fromOffset(12, 5)
+pageTitle.BackgroundTransparency = 1
+pageTitle.Text = "FPS Booster Ultra"
+pageTitle.TextColor3 = WHITE
+pageTitle.TextSize = 20
+pageTitle.Font = Enum.Font.GothamBold
+pageTitle.TextXAlignment = Enum.TextXAlignment.Left
+pageTitle.Parent = content
+
+local pageDescription = Instance.new("TextLabel")
+pageDescription.Size = UDim2.new(1, -24, 0, 42)
+pageDescription.Position = UDim2.fromOffset(12, 46)
+pageDescription.BackgroundTransparency = 1
+pageDescription.Text = "Reduce selected visual effects and shadows."
+pageDescription.TextColor3 = MUTED
+pageDescription.TextSize = 12
+pageDescription.Font = Enum.Font.Gotham
+pageDescription.TextWrapped = true
+pageDescription.TextXAlignment = Enum.TextXAlignment.Left
+pageDescription.Parent = content
+
+local featureCard = Instance.new("Frame")
+featureCard.Size = UDim2.new(1, -24, 0, 112)
+featureCard.Position = UDim2.fromOffset(12, 100)
+featureCard.BackgroundColor3 = ROW
+featureCard.BorderSizePixel = 0
+featureCard.Parent = content
+addCorner(featureCard, 12)
+
+local featureName = Instance.new("TextLabel")
+featureName.Size = UDim2.new(1, -20, 0, 30)
+featureName.Position = UDim2.fromOffset(12, 10)
+featureName.BackgroundTransparency = 1
+featureName.Text = "FPS BOOSTER ULTRA"
+featureName.TextColor3 = WHITE
+featureName.TextSize = 15
+featureName.Font = Enum.Font.GothamBold
+featureName.TextXAlignment = Enum.TextXAlignment.Left
+featureName.Parent = featureCard
+
+local statusLabel = Instance.new("TextLabel")
+statusLabel.Size = UDim2.new(1, -20, 0, 22)
+statusLabel.Position = UDim2.fromOffset(12, 40)
+statusLabel.BackgroundTransparency = 1
+statusLabel.Text = "Status: OFF"
+statusLabel.TextColor3 = MUTED
+statusLabel.TextSize = 12
+statusLabel.Font = Enum.Font.Gotham
+statusLabel.TextXAlignment = Enum.TextXAlignment.Left
+statusLabel.Parent = featureCard
+
+local toggleButton = Instance.new("TextButton")
+toggleButton.Size = UDim2.new(1, -24, 0, 38)
+toggleButton.Position = UDim2.fromOffset(12, 66)
+toggleButton.BackgroundColor3 = GREEN
+toggleButton.Text = "ENABLE"
+toggleButton.TextColor3 = WHITE
+toggleButton.TextSize = 13
+toggleButton.Font = Enum.Font.GothamBold
+toggleButton.Parent = featureCard
+addCorner(toggleButton, 9)
+
+local restoreButton = Instance.new("TextButton")
+restoreButton.Size = UDim2.new(1, -24, 0, 40)
+restoreButton.Position = UDim2.fromOffset(12, 224)
+restoreButton.BackgroundColor3 = Color3.fromRGB(133, 91, 45)
+restoreButton.Text = "RESTORE BOTH FEATURES"
+restoreButton.TextColor3 = WHITE
+restoreButton.TextSize = 12
+restoreButton.Font = Enum.Font.GothamBold
+restoreButton.Parent = content
+addCorner(restoreButton, 9)
+
+local footer = Instance.new("TextLabel")
+footer.Size = UDim2.new(1, -24, 0, 32)
+footer.Position = UDim2.new(0, 12, 1, -38)
+footer.BackgroundTransparency = 1
+footer.Text = "Client-side visual settings  •  Delta"
+footer.TextColor3 = MUTED
+footer.TextSize = 10
+footer.Font = Enum.Font.Gotham
+footer.Parent = content
+
+-- Only two navigation options: the user's original features.
+local currentPage = "FPS"
+
+local function makeNavButton(label)
     local button = Instance.new("TextButton")
-    button.Size = UDim2.new(1, -24, 0, 42)
-    button.Position = UDim2.fromOffset(12, y)
-    button.BackgroundColor3 = color
-    button.Text = text
-    button.TextColor3 = Color3.new(1, 1, 1)
-    button.Font = Enum.Font.GothamBold
+    button.Size = UDim2.new(1, 0, 0, 48)
+    button.BackgroundColor3 = ROW
+    button.Text = label
+    button.TextColor3 = WHITE
     button.TextSize = 12
-    button.Parent = frame
-    Instance.new("UICorner", button).CornerRadius = UDim.new(0, 8)
+    button.Font = Enum.Font.GothamBold
+    button.Parent = nav
+    addCorner(button, 9)
     return button
 end
 
-local fpsButton = makeButton("FPS BOOSTER: OFF", 78, Color3.fromRGB(35, 125, 85))
-local grayButton = makeButton("GRAY MAP: OFF (BLOX FRUITS)", 128, Color3.fromRGB(85, 85, 95))
-local restoreButton = makeButton("RESTORE ALL SETTINGS", 178, Color3.fromRGB(150, 90, 40))
+local fpsNav = makeNavButton("FPS BOOSTER ULTRA")
+local grayNav = makeNavButton("GRAY MAP ULTRA")
 
-fpsButton.MouseButton1Click:Connect(function()
-    if fpsEnabled then
-        restoreFPS()
-        fpsButton.Text = "FPS BOOSTER: OFF"
-        fpsButton.BackgroundColor3 = Color3.fromRGB(35, 125, 85)
+local function refreshPage()
+    if currentPage == "FPS" then
+        pageTitle.Text = "FPS Booster Ultra"
+        pageDescription.Text = "General visual optimization: selected effects, shadows and fog."
+        featureName.Text = "FPS BOOSTER ULTRA"
+        statusLabel.Text = "Status: " .. (fpsEnabled and "ON" or "OFF")
+        toggleButton.Text = fpsEnabled and "DISABLE" or "ENABLE"
+        toggleButton.BackgroundColor3 = fpsEnabled and RED or GREEN
+        fpsNav.BackgroundColor3 = Color3.fromRGB(91, 68, 42)
+        grayNav.BackgroundColor3 = ROW
     else
-        applyFPS()
-        fpsButton.Text = "FPS BOOSTER: ON"
-        fpsButton.BackgroundColor3 = Color3.fromRGB(165, 65, 65)
+        pageTitle.Text = "Blox Fruits Gray Map"
+        pageDescription.Text = "Turn eligible map colors gray while attempting to preserve water."
+        featureName.Text = "GRAY MAP ULTRA"
+        statusLabel.Text = "Status: " .. (grayEnabled and "ON" or "OFF")
+        toggleButton.Text = grayEnabled and "DISABLE" or "ENABLE"
+        toggleButton.BackgroundColor3 = grayEnabled and RED or GREEN
+        grayNav.BackgroundColor3 = Color3.fromRGB(91, 68, 42)
+        fpsNav.BackgroundColor3 = ROW
     end
+end
+
+fpsNav.MouseButton1Click:Connect(function()
+    currentPage = "FPS"
+    refreshPage()
 end)
 
-grayButton.MouseButton1Click:Connect(function()
-    if grayEnabled then
-        restoreGray()
-        grayButton.Text = "GRAY MAP: OFF (BLOX FRUITS)"
-        grayButton.BackgroundColor3 = Color3.fromRGB(85, 85, 95)
+grayNav.MouseButton1Click:Connect(function()
+    currentPage = "GRAY"
+    refreshPage()
+end)
+
+toggleButton.MouseButton1Click:Connect(function()
+    if currentPage == "FPS" then
+        if fpsEnabled then
+            restoreFPS()
+        else
+            applyFPS()
+        end
     else
-        applyGray()
-        grayButton.Text = "GRAY MAP: ON"
-        grayButton.BackgroundColor3 = Color3.fromRGB(165, 65, 65)
+        if grayEnabled then
+            restoreGray()
+        else
+            applyGray()
+        end
     end
+    refreshPage()
 end)
 
 restoreButton.MouseButton1Click:Connect(function()
     restoreFPS()
     restoreGray()
-    fpsButton.Text = "FPS BOOSTER: OFF"
-    fpsButton.BackgroundColor3 = Color3.fromRGB(35, 125, 85)
-    grayButton.Text = "GRAY MAP: OFF (BLOX FRUITS)"
-    grayButton.BackgroundColor3 = Color3.fromRGB(85, 85, 95)
-    subtitle.Text = "All saved visual settings restored"
+    refreshPage()
 end)
 
--- Drag panel on touch and mouse.
-local dragging, dragStart, startPos = false, nil, nil
+-- Avatar button toggles the menu; the dash button hides it too.
+avatar.MouseButton1Click:Connect(function()
+    frame.Visible = not frame.Visible
+end)
+
+hideButton.MouseButton1Click:Connect(function()
+    frame.Visible = false
+end)
+
+-- Drag the menu using its title bar.
+local dragging = false
+local dragStart, startPosition
+
 title.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.Touch
-        or input.UserInputType == Enum.UserInputType.MouseButton1 then
+    if input.UserInputType == Enum.UserInputType.MouseButton1
+        or input.UserInputType == Enum.UserInputType.Touch then
         dragging = true
         dragStart = input.Position
-        startPos = frame.Position
+        startPosition = frame.Position
     end
 end)
 
 table.insert(connections, UserInputService.InputChanged:Connect(function(input)
-    if dragging and (input.UserInputType == Enum.UserInputType.Touch
-        or input.UserInputType == Enum.UserInputType.MouseMovement) then
+    if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement
+        or input.UserInputType == Enum.UserInputType.Touch) then
         local delta = input.Position - dragStart
-        frame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X,
-            startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+        frame.Position = UDim2.new(
+            startPosition.X.Scale, startPosition.X.Offset + delta.X,
+            startPosition.Y.Scale, startPosition.Y.Offset + delta.Y
+        )
     end
 end))
 
 table.insert(connections, UserInputService.InputEnded:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.Touch
-        or input.UserInputType == Enum.UserInputType.MouseButton1 then
+    if input.UserInputType == Enum.UserInputType.MouseButton1
+        or input.UserInputType == Enum.UserInputType.Touch then
         dragging = false
     end
 end))
 
-local function cleanup()
-    if closed then return end
-    restoreFPS()
-    restoreGray()
-    closed = true
-    for _, connection in ipairs(connections) do
-        pcall(function() connection:Disconnect() end)
+-- Keep the floating avatar available while the panel is hidden.
+local avatarDragging = false
+local avatarStart, avatarPosition
+
+avatar.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1
+        or input.UserInputType == Enum.UserInputType.Touch then
+        avatarDragging = true
+        avatarStart = input.Position
+        avatarPosition = avatar.Position
     end
-    gui:Destroy()
-end
+end)
 
-close.MouseButton1Click:Connect(cleanup)
+table.insert(connections, UserInputService.InputChanged:Connect(function(input)
+    if avatarDragging and (input.UserInputType == Enum.UserInputType.MouseMovement
+        or input.UserInputType == Enum.UserInputType.Touch) then
+        local delta = input.Position - avatarStart
+        avatar.Position = UDim2.new(
+            avatarPosition.X.Scale, avatarPosition.X.Offset + delta.X,
+            avatarPosition.Y.Scale, avatarPosition.Y.Offset + delta.Y
+        )
+    end
+end))
 
-print("[Visual Control Center] Loaded successfully.")
-print("Choose FPS Booster or Gray Map from the menu.")
+table.insert(connections, UserInputService.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1
+        or input.UserInputType == Enum.UserInputType.Touch then
+        avatarDragging = false
+    end
+end))
+
+refreshPage()
+
+print("[Visual Control Center] Loaded. Avatar toggles the menu.")
+print("Features: FPS Booster Ultra | Blox Fruits Gray Map Ultra")
