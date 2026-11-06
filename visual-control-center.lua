@@ -63,11 +63,32 @@ local function isWaterPart(obj)
     if not obj:IsA("BasePart") then return false end
     if obj.Material == Enum.Material.Water then return true end
 
-    local n = string.lower(obj.Name)
-    return string.find(n, "water", 1, true) ~= nil
-        or string.find(n, "ocean", 1, true) ~= nil
-        or string.find(n, "sea", 1, true) ~= nil
+    -- Check the part and all parent names (some Blox Fruits water is grouped).
+    local current = obj
+    while current and current ~= Workspace do
+        local n = string.lower(current.Name)
+        if string.find(n, "water", 1, true)
+            or string.find(n, "ocean", 1, true)
+            or string.find(n, "sea", 1, true) then
+            return true
+        end
+        current = current.Parent
     end
+
+    -- Also protect custom water planes: very large, thin, horizontal,
+    -- blue/cyan parts are likely ocean surfaces even when unnamed.
+    local size = obj.Size
+    if size.X >= 80 and size.Z >= 80
+        and size.Y <= math.min(size.X, size.Z) * 0.12 then
+        local hue, saturation, value = obj.Color:ToHSV()
+        if hue >= 0.43 and hue <= 0.75
+            and saturation >= 0.18 and value >= 0.12 then
+            return true
+        end
+    end
+
+    return false
+end
 
 local function applyFPSObject(obj)
     if not fpsEnabled or isCharacterOrTool(obj) then return end
