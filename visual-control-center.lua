@@ -359,7 +359,7 @@ local title = Instance.new("TextLabel")
 title.Size = UDim2.new(1, -54, 1, 0)
 title.Position = UDim2.fromOffset(14, 0)
 title.BackgroundTransparency = 1
-title.Text = "VISUAL CONTROL CENTER  V2"
+title.Text = "VISUAL CONTROL CENTER  V3"
 title.TextColor3 = GOLD
 title.TextSize = 18
 title.Font = Enum.Font.GothamBold
@@ -486,7 +486,7 @@ addCorner(toggleButton, 9)
 
 local restoreButton = Instance.new("TextButton")
 restoreButton.Size = UDim2.new(1, -24, 0, 40)
-restoreButton.Position = UDim2.fromOffset(12, 264)
+restoreButton.Position = UDim2.fromOffset(12, 326)
 restoreButton.BackgroundColor3 = Color3.fromRGB(133, 91, 45)
 restoreButton.Text = "RESTORE ALL + STOP AUTO CLICK"
 restoreButton.TextColor3 = WHITE
@@ -510,7 +510,7 @@ local currentPage = "FPS"
 
 local intervalLabel = Instance.new("TextLabel")
 intervalLabel.Size = UDim2.new(1, -24, 0, 20)
-intervalLabel.Position = UDim2.fromOffset(12, 184)
+intervalLabel.Position = UDim2.fromOffset(12, 258)
 intervalLabel.BackgroundTransparency = 1
 intervalLabel.Text = "Click interval (seconds) — default 0.10"
 intervalLabel.TextColor3 = MUTED
@@ -522,7 +522,7 @@ intervalLabel.Parent = content
 
 local intervalBox = Instance.new("TextBox")
 intervalBox.Size = UDim2.new(1, -24, 0, 30)
-intervalBox.Position = UDim2.fromOffset(12, 207)
+intervalBox.Position = UDim2.fromOffset(12, 282)
 intervalBox.BackgroundColor3 = ROW
 intervalBox.Text = "0.10"
 intervalBox.PlaceholderText = "0.05 to 5 seconds"
@@ -586,9 +586,9 @@ local function refreshPage()
         autoNav.BackgroundColor3 = ROW
     else
         pageTitle.Text = "Auto Click"
-        pageDescription.Text = "Activates an equipped Tool only. No mouse clicks or screen touches are sent."
+        pageDescription.Text = "Luau Tool activation only. No simulated mouse clicks or screen touches. Some custom combat systems are unsupported."
         featureName.Text = "AUTO CLICK"
-        statusLabel.Text = "Status: " .. (autoClickEnabled and (getEquippedWeapon() and "ON • WEAPON EQUIPPED" or "ON • EQUIP A TOOL") or "OFF")
+        local equipped = getEquippedWeapon()\n        statusLabel.Text = "Status: " .. (autoClickEnabled and (equipped and ("ON • " .. equipped.Name) or "ON • EQUIP A TOOL") or "OFF")
         toggleButton.Text = autoClickEnabled and "STOP AUTO CLICK" or "START AUTO CLICK"
         toggleButton.BackgroundColor3 = autoClickEnabled and RED or GREEN
         autoNav.BackgroundColor3 = Color3.fromRGB(91, 68, 42)
