@@ -27,7 +27,7 @@ This repository provides client-side Luau scripts for visual customization and o
 A Banana Cat Hub-inspired interface with **only the two original visual features**:
 
 - **FPS Booster Ultra:** toggles selected particles, trails, beams, smoke, fire, sparkles, post effects, shadows, and selected lighting settings.
-- **Blox Fruits Gray Map Ultra:** toggles eligible map parts and terrain materials to gray while attempting to preserve water.
+- **Blox Fruits Gray Map Ultra:** toggles eligible map parts and terrain materials to gray while preserving Terrain Water, named water/ocean/sea objects, and large thin blue/cyan ocean surfaces.
 - **Floating avatar button:** tap the avatar to hide or show the main menu.
 - **Two navigation tabs:** FPS Booster Ultra and Gray Map Ultra.
 - **Restore Both Features:** restores the saved visual properties from both features.
@@ -77,7 +77,7 @@ loadstring(game:HttpGet(
 5. Tap **RESTORE BOTH FEATURES** to turn both features off and restore saved properties.
 6. Tap the floating avatar to hide or show the menu. The dash button in the header also hides it; tap the avatar again to reopen it.
 
-For Blox Fruits, Gray Map is designed to preserve Terrain Water and objects identified as water. Custom game assets may not always be identified correctly.
+For Blox Fruits, Gray Map skips Terrain Water, water/ocean/sea-named objects (including their parent groups), and large thin blue/cyan parts commonly used as custom sea surfaces. Unusual custom water assets may still need an additional game-specific exclusion.
 
 ## ⚠️ Notes & limitations
 
