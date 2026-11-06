@@ -19,6 +19,7 @@ local grayEnabled = false
 local autoClickEnabled = false
 local autoClickInterval = 0.1
 local autoClickGeneration = 0
+local menuIsVisible = true
 local closed = false
 
 local original = {}
@@ -269,11 +270,14 @@ local function startAutoClick()
 
     task.spawn(function()
         while autoClickEnabled and autoClickGeneration == thisGeneration do
-            local ok, err = sendM1Click()
-            if not ok then
-                stopAutoClick()
-                warn("[Auto Click] Stopped: " .. tostring(err))
-                break
+            -- Pause input while the menu is visible so repeated M1 cannot press UI buttons.
+            if not menuIsVisible then
+                local ok, err = sendM1Click()
+                if not ok then
+                    stopAutoClick()
+                    warn("[Auto Click] Stopped: " .. tostring(err))
+                    break
+                end
             end
             task.wait(math.clamp(autoClickInterval, 0.05, 5))
         end
@@ -639,6 +643,10 @@ toggleButton.MouseButton1Click:Connect(function()
             if not ok then
                 statusLabel.Text = "Unsupported: executor M1 API unavailable"
                 warn("[Auto Click] " .. message)
+            else
+                -- Hide the panel after starting; leave the floating avatar available.
+                frame.Visible = false
+                menuIsVisible = false
             end
         end
     end
@@ -655,10 +663,12 @@ end)
 -- Avatar button toggles the menu; the dash button hides it too.
 avatar.MouseButton1Click:Connect(function()
     frame.Visible = not frame.Visible
+    menuIsVisible = frame.Visible
 end)
 
 hideButton.MouseButton1Click:Connect(function()
     frame.Visible = false
+    menuIsVisible = false
 end)
 
 -- Drag the menu using its title bar.
