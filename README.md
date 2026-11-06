@@ -1,6 +1,9 @@
 # ⚡ Roblox FPS Booster Ultra
 
 <p align="center">
+  <img src="assets/fps-booster-banner.svg" alt="Roblox FPS Booster Ultra banner" width="100%" />
+</p>
+<p align="center">
   <strong>A lightweight client-side visual optimization script for Roblox</strong><br>
   Built with Luau · Designed for general Roblox experiences
 </p>
