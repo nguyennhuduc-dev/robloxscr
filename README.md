@@ -5,7 +5,7 @@
 </p>
 <p align="center">
   <strong>Client-side Luau visual tools for Roblox</strong><br>
-  FPS optimization · Blox Fruits grayscale map · Combined control menu
+  FPS optimization · Blox Fruits grayscale map · Auto Click · Combined control menu
 </p>
 
 <p align="center">
@@ -28,9 +28,10 @@ A Banana Cat Hub-inspired interface with **only the two original visual features
 
 - **FPS Booster Ultra:** toggles selected particles, trails, beams, smoke, fire, sparkles, post effects, shadows, and selected lighting settings.
 - **Blox Fruits Gray Map Ultra:** toggles eligible map parts and terrain materials to gray while preserving Terrain Water, named water/ocean/sea objects, and large thin blue/cyan ocean surfaces.
+- **Auto Click:** repeatedly clicks at the current pointer position with a configurable interval from 0.05 to 5 seconds (default 0.10 seconds); requires the executor to expose `mouse1click` or `mouse1press`/`mouse1release`.
 - **Floating avatar button:** tap the avatar to hide or show the main menu.
-- **Two navigation tabs:** FPS Booster Ultra and Gray Map Ultra.
-- **Restore Both Features:** restores the saved visual properties from both features.
+- **Three navigation tabs:** FPS Booster Ultra, Gray Map Ultra, and Auto Click.
+- **Restore All + Stop Auto Click:** restores saved visual properties and stops the Auto Click loop.
 - **Draggable menu and avatar:** move the panel and floating avatar on screen.
 
 **Delta loader**
@@ -74,14 +75,17 @@ loadstring(game:HttpGet(
 2. Open your supported executor (for example, Delta).
 3. For the combined menu, paste the **Visual Control Center** loader above.
 4. Tap **FPS BOOSTER** and/or **GRAY MAP** to enable each feature independently.
-5. Tap **RESTORE BOTH FEATURES** to turn both features off and restore saved properties.
+5. In **Auto Click**, set the interval (0.05–5 seconds) and tap **START AUTO CLICK**. Keep the pointer over the intended target; tap **STOP AUTO CLICK** to stop.
+6. Tap **RESTORE ALL + STOP AUTO CLICK** to restore visual settings and stop Auto Click.
 6. Tap the floating avatar to hide or show the menu. The dash button in the header also hides it; tap the avatar again to reopen it.
 
 For Blox Fruits, Gray Map skips Terrain Water, water/ocean/sea-named objects (including their parent groups), and large thin blue/cyan parts commonly used as custom sea surfaces. Unusual custom water assets may still need an additional game-specific exclusion.
 
 ## ⚠️ Notes & limitations
 
-- These scripts make **client-side visual changes**. They do not modify server data, player stats, combat logic, or game progression.
+- These scripts run client-side. Auto Click sends repeated input through executor-provided mouse APIs; it does not move the pointer or select a target.
+- Auto Click requires `mouse1click` or both `mouse1press` and `mouse1release` to be available in the executor. Some mobile executor/game combinations may not support these APIs, and touch input behavior can differ.
+- These scripts do not modify server data, player stats, combat logic, or game progression.
 - FPS improvements are not guaranteed; results depend on the device, experience, and rendering workload.
 - Some effects or map objects may be recreated by the game or may not be accessible to the script.
 - Restore can only return properties that were successfully recorded. If the game changes an object while a feature is active, the result may not exactly match its original appearance.
