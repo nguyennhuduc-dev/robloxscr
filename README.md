@@ -1,7 +1,7 @@
 # ⚡ Roblox FPS Booster Ultra
 
 <p align="center">
-  <img src="assets/fps-booster-banner.svg" alt="Roblox FPS Booster Ultra banner" width="100%" />
+  <img src="assets/file_000000005c5082079ef4c59766fca733.png" alt="Roblox FPS Booster Ultra banner" width="100%" />
 </p>
 <p align="center">
   <strong>A lightweight client-side visual optimization script for Roblox</strong><br>
